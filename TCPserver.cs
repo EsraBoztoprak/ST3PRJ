@@ -1,33 +1,42 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
+using System.IO.Ports; 
 using System.Text;
 
-namespace TCPserver
+namespace BluetoothSender
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            TcpListener server = new TcpListener(IPAddress.Any, 5000);
-            server.Start();
-            Console.WriteLine("Server started...");
+            // Replace the TCP logic with SerialPort for Bluetooth
+            string portName = "COM3"; 
+            int baudRate = 115200; 
 
-            while (true)
+            try
             {
-                using (TcpClient client = server.AcceptTcpClient())
+                // Open a serial port for Bluetooth communication
+                using (SerialPort serialPort = new SerialPort(portName, baudRate))
                 {
-                    NetworkStream stream = client.GetStream();
-                    // Simuler sensor data
-                    string sensorData = "Sensor data: " + DateTime.Now;
-                    byte[] data = Encoding.UTF8.GetBytes(sensorData);
-                    stream.Write(data, 0, data.Length);
-                    Console.WriteLine($"Sent: {sensorData}");
+                    serialPort.Open();
+                    Console.WriteLine("Bluetooth connection established!");
+
+                    while (true)
+                    {
+                      
+                        string sensorData = "Sensor data: " + DateTime.Now;
+                        byte[] data = Encoding.UTF8.GetBytes(sensorData);
+                        serialPort.Write(data, 0, data.Length);
+                        Console.WriteLine($"Sent: {sensorData}");
+                        // Wait for a second before sending the next piece of data
+                        System.Threading.Thread.Sleep(1000);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                // Handle any errors related to serial communication
+                Console.WriteLine($"Error: {ex.Message}");
+            }
         }
-
     }
 }
-
-
